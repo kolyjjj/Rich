@@ -1,0 +1,65 @@
+<project name="Rich" default="main" basedir=".">
+
+ <property name="src" location="src"/>
+ <property name="test" location="test"/>
+ <property name="build" location="build"/>
+ <property name="dist"  location="dist"/>
+ <property name="lib" location="lib" />
+ <property name="game" location="GameLauncher" />
+ <property name="jarfile" location="${dist}/lib/rich.jar" />
+
+<path id="lib.classpath">
+ <fileset dir="${lib}">
+   <include name="*.jar" />
+ </fileset>
+</path>
+
+ <target name="init">
+   <mkdir dir="${build}"/>
+ </target>
+
+ <target name="compile" depends="init">
+   <javac srcdir="${src}" destdir="${build}" includeantruntime="on">
+     <classpath refid="lib.classpath"/>
+   </javac>
+   <javac srcdir="${test}" destdir="${build}" includeantruntime="on">
+     <classpath refid="lib.classpath"/>
+   </javac>
+ </target>
+
+ <target name="junit" depends="compile">
+   <junit printsummary="true">
+     <classpath>
+       <pathelement path="${build}" />
+       <fileset dir="${lib}">
+	 <include name="*.jar"/>
+       </fileset>
+     </classpath>
+
+     <batchtest fork="yes">
+       <fileset dir="${test}">
+	 <include name="*Test.java"/>
+       </fileset>
+     </batchtest>
+   </junit>
+ </target>
+
+ <target name="dist" depends="compile">
+   <mkdir dir="${dist}/lib"/>
+   <jar jarfile="${jarfile}" basedir="${build}"/>
+ </target>
+
+ <target name="run" depends="dist">
+   <java classname="GameLauncher" classpath="${jarfile}" />
+ </target>
+
+ <target name="clean">
+   <delete dir="${build}"/>
+   <delete dir="${dist}" />
+ </target>
+
+ <target name="clean-build" depends="clean, dist" />
+ <target name="main" depends="clean, run" />
+ <target name="test" depends="clean, junit" />
+
+</project>
